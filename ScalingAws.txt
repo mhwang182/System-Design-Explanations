@@ -1,0 +1,94 @@
+Base design (Single box architecture):
+- Client
+- DNS
+- Single Web server. (ex EC2) Includes:
+    - Application logic
+    - Database
+    - Object Storage
+- Need to vertically scale for more performance
+- No redundancy
+
+
+Scale to Users+:
+- Client
+- DNS
+- Web server
+- SQL database
+- Object Storage (S3)
+
+Action:
+- Moved out Database and Object Storage to lighten the load on the single server. Vertically scaling database taking up
+  too much memory and cpu resources.
+- Could use RDS and S3
+
+Tradeoffs:
+- Added complexity. Need to ensure separate security of DB and S3
+
+Security:
+- Add VPC
+    - Use public subnet to access web server
+    - Use private subnet for everything else preventing outside access
+
+
+Scale to Users++:
+
+- Client
+- DNS
+- N Tier with horizontal scaling
+    - Load Balancers
+    - Web Servers (Reverse Proxy Server) 
+    - Application servers
+        - Write API
+        - Read API
+
+- SQL Database 
+    - Master Slave replication
+
+- Object Storage
+
+Action:
+- Add load balancer to improve availability. Distributes load among web servers so no one server is over worked
+Tradeoffs:
+- More complexity
+
+Action:
+- Add proxy servers to scale and configure independently from Application Servers
+- Separate Application server into separate services as per Single Resposibility principle. 
+  Also can scale independently and easily add new services for more growth. 
+Tradeoffs:
+- More complexity, harder to manage many small services
+
+Action:
+- Horizontally scaled SQL DB with master slave replication. 
+Tradeoffs:
+- Single point of failure for fresh data. Replication could lead to inconsistency temporarily
+
+
+Users+++:
+Problem: High read rates on DB
+Additions:
+- SQL read replicas
+- In memeory cache on Read API db reads
+
+Action:
+- Implement cache for DB reads using something like ElastiCache (aws) or Redis etc
+Tradeoffs:
+- Added complexity. Consistency could become an issue
+
+Users++++:
+Problem: traffic spikes during the day and drops in the evening
+
+Additions:
+- Add autoscaling
+
+
+Users+++++:
+
+Actions:
+- Write tasks that dont need to be done in realtime can be done asynchronously with Queues and workers
+- SQS for queue. Worker Service could be EC2 or Lambda for example
+
+
+Actions:
+- Further SQL scaling
+    - Could be: Sharding, Federation, Denormalization, SQL Tuning
