@@ -1,0 +1,65 @@
+Use cases:
+- Users can connect to financial account
+- Extracts transaction information for user
+- Catagorizes transactions
+- Analyzes monthly spending by category
+- Recommends a budget
+    - users can set budget
+    - sends notifcation when almost at or exceeding budget
+
+- High availability (non functional requirement)
+
+
+Core Entities:
+- User
+- Financial Account
+- transaction
+
+
+High level design:
+
+- Client
+- Financial Account APIs
+- DB
+    - Users have transctions etc. Relationtional data for now SQL
+
+- use case: user adds financial account
+    - Accounts API
+        - creates account record in DB
+        - adds account to a queue to have transactions extracted
+        - Adds accounts to the queue everyday if not already processed
+    
+- use case: extracts transactions from account
+    - Transaction Extraction Service
+        - reads accounts off the queue.
+        - calls the Financial Institution APIs and gets the transactions
+            - if financial API not responsive we can add back to queue for retry 
+        - Adds each transaction to the DB Transactions table
+        - Adds transaction id to queue
+    
+- Use case: Categorize, Monthly spend by category, Budget
+    - Transaction Categorizer Service
+        - Reads transaction off queue
+        - Categorizes transaction
+        - Increments Monthly Spend Table for category
+        - Calculates monthly total
+            - If total too almost or greater than limit
+            - Add to notification Queue
+
+- Use Case: Sends notification when almost or exceeding budget:
+    - Notification Service
+        - Reads From queue when to send notifications
+
+
+
+Scaling Up the Design:
+
+- Add DNS
+- Load Balancer
+- Web server horizonally scaled
+- Horizontally Scale Services
+- Master Slave replication with read replicas
+    - Cache DB reads
+    - Load balance DB reads to read replicas
+
+
