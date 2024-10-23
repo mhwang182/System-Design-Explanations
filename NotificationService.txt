@@ -1,0 +1,35 @@
+Use Cases:
+- Notification is created
+- User subscribes to topic
+
+- Deliver notifications to users subscribed to a topic
+
+
+
+Core Entities:
+- Topics
+- Users
+- Notifications
+
+
+High level Design:
+
+- Notification Services
+    - will send notifications to specific recipient
+
+Use Case: New Notification for topic created 
+- Notifications API
+    - Creates new notification record in DB
+    - adds notification to a queue
+
+
+Use case: User subscribes to topic
+- add userId to the set for topicId
+
+Use case: Notifications delivered
+- Reads from queue of new notifications
+- gets set of userId for topic
+- sends notification to each user
+    - could be a queue for each user to notification
+
+
