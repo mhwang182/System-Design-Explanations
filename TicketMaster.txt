@@ -32,8 +32,9 @@ High Level Design:
 
 Deep Dive:
 - use case: user books ticket
-    - If user is first to book a ticket, update ticket status
-        - Store ticket status in cache like redis. reduce reads to db and make status checking more efficient
+    - Store ticket status in a distributed lock like Redis with a TTL
+    - If use is about to check out ticket, add ticket to distributed lock
+    - Ticket status reset by TTL if not purchased 
 
 - use case: user searches for event
     - To keep elasticsearch up to date with latest event info use Change Data Capture between main db and elasticsearch
