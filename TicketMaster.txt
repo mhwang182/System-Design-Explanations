@@ -1,0 +1,45 @@
+Functional Requirements/Use Cases:
+- User books ticket
+- User views event
+- User searches for events
+
+Core Entities:
+- User
+- Event
+- Tickets
+
+Non functional requirements:
+- Strong consistency (no double booking)
+
+High Level Design:
+
+- use case: user books ticket
+    - User sends request to Booking service with ticketId known
+        - checks to make sure ticket is available
+            - Throw error or get told instantly if ticket gets booked
+        - reserves ticket if available
+
+- use case: user searches for event
+    - User sends request to Search API
+        - searches a Reverse Index (Elasticsearch) for result matching search
+        - responds with event
+            - I would do event ID and then get further information at another time
+
+- use case: User views event
+    - User sends request to Events CRUD API
+        - api gets event from DB
+
+
+Deep Dive:
+- use case: user books ticket
+    - If user is first to book a ticket, update ticket status
+        - Store ticket status in cache like redis. reduce reads to db and make status checking more efficient
+
+- use case: user searches for event
+    - To keep elasticsearch up to date with latest event info use Change Data Capture between main db and elasticsearch
+    - add caching
+
+- Scalability for popular events:
+    - use Sever Sent events to update client when ticket they are viewing become unavailable
+    - Virtual waiting queue 
+
